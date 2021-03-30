@@ -21,12 +21,12 @@ def error_db_handler(func):
             return False
         except Exception as e:
             print(f"""
-================ERROR_DB================
+================ERROR================
     type: {type(e)},
     arguments: {e.args},
     text: {e},
     time: {time()}
-==============================================
+=====================================
                 """)
             return False
 

@@ -16,7 +16,6 @@ class Postgres_db:
         if conn:
             self.conn = conn
         else:
-            print("Нет подключения к БД")
             raise ConnectError('No connection to database Postgres')
 
     def __init_named_cursor(func):
@@ -66,7 +65,7 @@ class Postgres_db:
 
                 self.print_error(e, bad_query)
 
-                raise ConnectError('No connection to database Postgres')
+                raise ExecuteError('No connection to database Postgres')
 
         return the_wrapper_around_the_original_function
 

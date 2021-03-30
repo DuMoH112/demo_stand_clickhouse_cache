@@ -178,17 +178,17 @@ $$
             VALUES (
                 file_id_,
                 random_dt_between('2019-01-01 00:00:00', '2020-01-01 00:00:00'),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 4),
-                random_between(1, 10000)
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 4),
+                random_int_between(1, 10000)
             );
 
         END LOOP;
