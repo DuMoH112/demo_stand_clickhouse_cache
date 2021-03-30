@@ -1,3 +1,4 @@
+import os
 from time import time
 
 from Database.postgres import Postgres_db
@@ -7,19 +8,32 @@ from Database.clickhouse import Clickhouse_db
 def timer(func):
     def the_wrapper_around_the_original_function(*args, **kwargs):
         start_time = time()
+        arguments = ",".join(f'{i}={kwargs[i]}' for i in kwargs)
         result = func(*args, **kwargs)
-        print(
-            '''
+        stop_time = time()
+        
+        log = '''
 {stars}
 function: {function}
+arguments: {arguments}
 time: {time}
 {stars}
             '''.format(
                 stars='*******************',
                 function=func.__name__,
-                time=time() - start_time
-            )
+                arguments=arguments,
+                time=stop_time - start_time
         )
+
+        mode = 'a'
+        filename = 'timer.log'
+
+        if not os.path.isfile(filename):
+            mode = 'w+'
+
+        with open(filename, mode) as f:
+            f.write(log)
+
         return result
 
     return the_wrapper_around_the_original_function
