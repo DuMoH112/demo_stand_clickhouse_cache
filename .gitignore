@@ -1,0 +1,5 @@
+__pycache__
+/.vscode
+/postgre
+/clickhouse
+.DS_Store

@@ -1,0 +1,41 @@
+version: "3"
+services:
+  app:
+    build: ./app
+    container_name: python-article
+    environment:
+      - PYTHONUNBUFFERED=True                   # Позволяет отслеживать процесс работы приложения в командной строке
+    depends_on:
+      - postgredb
+      - clickhousedb-server
+    restart: on-failure
+    volumes:
+      - ./app:/app
+    ports:
+      - "5557:5000"
+    command: python main.py
+
+  postgredb:
+    image: postgres:11.5-alpine
+    container_name: postgredb-article
+    ports:
+     - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: article_db
+      POSTGRES_USER: user
+    restart: on-failure
+    command: ["-c", "shared_buffers=2GB", "-c", "max_connections=10000", "-c", "shared_preload_libraries=pg_stat_statements"]
+    volumes:
+     - ./postgre/pg_data:/var/lib/postgresql/data/
+  
+  clickhousedb-server:
+    build: ./clickhouse-server
+    container_name: clickhousedb-server-article
+    ports:
+     - '8123:8123'
+     - '9000:9000'
+    restart: on-failure
+    volumes:
+     - ./clickhouse/cache_dt_db:/var/lib/clickhouse
+    
