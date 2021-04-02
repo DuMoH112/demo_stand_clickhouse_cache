@@ -1,3 +1,4 @@
+import traceback
 from time import time
 
 
@@ -20,8 +21,11 @@ def error_db_handler(func):
             print("Ошибка обращения к БД")
             return False
         except Exception as e:
-            print(f"""
+            print("""
 ================ERROR================
+    traceback: """)
+            traceback.print_stack()
+            print(f"""
     type: {type(e)},
     arguments: {e.args},
     text: {e},
