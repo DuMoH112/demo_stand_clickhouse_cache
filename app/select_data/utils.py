@@ -30,17 +30,33 @@ time: {time}
         f.write(log)
 
 
-def timer(func):
-    def the_wrapper_around_the_original_function(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        stop_time = time.time()
+def timer(isRetunrnTime=True):
+    """
+        If isRetunrnTime=True then returned:
+        {
+            'result': result,
+            'total_time': time
+        }
+    """
+    def decorator_timer(func):
+        def the_wrapper_around_the_original_function(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            stop_time = time.time()
 
-        log_timer(func.__name__, stop_time - start_time, args)
+            log_timer(func.__name__, stop_time - start_time, args)
 
-        return result
+            if isRetunrnTime:
+                return {
+                    'result': result,
+                    'total_time': stop_time - start_time
+                }
 
-    return the_wrapper_around_the_original_function
+            return result
+
+        return the_wrapper_around_the_original_function
+
+    return decorator_timer
 
 
 def random_date(start, end, prop):
