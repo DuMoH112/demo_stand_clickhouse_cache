@@ -1,9 +1,6 @@
 import os
 import time
 
-from Database.postgres import Postgres_db
-from Database.clickhouse import Clickhouse_db
-
 
 def log_timer(name_func, diff_time, args_):
     arguments = ", ".join(f'{i}' for i in args_)
@@ -68,21 +65,3 @@ def random_date(start, end, prop):
     ptime = stime + prop * (etime - stime)
 
     return time.strftime(format, time.localtime(ptime))
-
-
-def init_postgres(func):
-    def the_wrapper_around_the_original_function(*args, **kwargs):
-        postgres_db = Postgres_db()
-        result = func(*args, **kwargs, postgres_db=postgres_db)
-        return result
-
-    return the_wrapper_around_the_original_function
-
-
-def init_clickhouse(func):
-    def the_wrapper_around_the_original_function(*args, **kwargs):
-        clickhouse_db = Clickhouse_db()
-        result = func(*args, **kwargs, clickhouse_db=clickhouse_db)
-        return result
-
-    return the_wrapper_around_the_original_function

@@ -1,9 +1,9 @@
 import random
 
 from Errors import error_db_handler
+from Database.postgres import init_postgres
 from select_data.utils import (
     timer,
-    init_postgres,
     random_date
 )
 

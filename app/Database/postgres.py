@@ -8,6 +8,7 @@ from psycopg2.extras import DictCursor
 from config import config
 from Errors import ConnectError, ExecuteError
 
+
 class Postgres_db:
     conn = None
 
@@ -41,7 +42,7 @@ class Postgres_db:
                 self.print_error(e, bad_query)
 
                 raise ExecuteError('Execute error to database Postgres')
-                
+
         return the_wrapper_around_the_original_function
 
     def __init_dict_cursor(func):
@@ -111,7 +112,6 @@ class Postgres_db:
 
         return True
 
-
     def print_error(self, e, bad_query=None):
         if bad_query:
             print(f"""
@@ -132,3 +132,17 @@ class Postgres_db:
     time: {time()}
 ==============================================
                 """)
+
+
+def init_postgres(func):
+    def the_wrapper_around_the_original_function(*args, **kwargs):
+        postgres_db = Postgres_db()
+        try:
+            result = func(*args, **kwargs, postgres_db=postgres_db)
+        finally:
+            if postgres_db:
+                postgres_db.close()
+
+        return result
+
+    return the_wrapper_around_the_original_function

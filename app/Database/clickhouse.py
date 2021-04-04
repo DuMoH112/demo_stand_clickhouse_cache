@@ -12,7 +12,7 @@ class Clickhouse_db:
     def __init__(self):
         conn = self.connect(config)
         try:
-            self.check_connect(conn) 
+            self.check_connect(conn)
             self.conn = conn
         except errors.NetworkError as e:
             self.print_error(e)
@@ -25,13 +25,13 @@ class Clickhouse_db:
     def connect(self, config):
         """Open connect with database"""
         conn = dbapi.connect(
-                host=str(config['CLICKHOUSE']['CLICKHOUSE_HOST']),
-                port=str(config['CLICKHOUSE']['CLICKHOUSE_PORT']),
-                user=str(config['CLICKHOUSE']['CLICKHOUSE_USERNAME']),
-                password=str(config['CLICKHOUSE']['CLICKHOUSE_PASSWORD']),
-                database=str(config['CLICKHOUSE']['CLICKHOUSE_DATABASE_NAME']),
-                compression=bool(config['CLICKHOUSE']['CLICKHOUSE_COMPRESSION'])
-            )
+            host=str(config['CLICKHOUSE']['CLICKHOUSE_HOST']),
+            port=str(config['CLICKHOUSE']['CLICKHOUSE_PORT']),
+            user=str(config['CLICKHOUSE']['CLICKHOUSE_USERNAME']),
+            password=str(config['CLICKHOUSE']['CLICKHOUSE_PASSWORD']),
+            database=str(config['CLICKHOUSE']['CLICKHOUSE_DATABASE_NAME']),
+            compression=bool(config['CLICKHOUSE']['CLICKHOUSE_COMPRESSION'])
+        )
 
         return conn
 
@@ -112,3 +112,17 @@ class Clickhouse_db:
         cursor = conn.cursor()
 
         cursor.execute("SELECT now()")
+
+
+def init_clickhouse(func):
+    def the_wrapper_around_the_original_function(*args, **kwargs):
+        clickhouse_db = Clickhouse_db()
+        try:
+            result = func(*args, **kwargs, clickhouse_db=clickhouse_db)
+        finally:
+            if clickhouse_db:
+                clickhouse_db.close()
+
+        return result
+
+    return the_wrapper_around_the_original_function
