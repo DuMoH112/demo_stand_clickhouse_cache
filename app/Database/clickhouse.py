@@ -24,12 +24,13 @@ class Clickhouse_db:
 
     def connect(self, config):
         """Open connect with database"""
+        self.db_name = str(config['CLICKHOUSE']['CLICKHOUSE_DATABASE_NAME'])
         conn = dbapi.connect(
             host=str(config['CLICKHOUSE']['CLICKHOUSE_HOST']),
             port=str(config['CLICKHOUSE']['CLICKHOUSE_PORT']),
             user=str(config['CLICKHOUSE']['CLICKHOUSE_USERNAME']),
             password=str(config['CLICKHOUSE']['CLICKHOUSE_PASSWORD']),
-            database=str(config['CLICKHOUSE']['CLICKHOUSE_DATABASE_NAME']),
+            database=self.db_name,
             compression=bool(config['CLICKHOUSE']['CLICKHOUSE_COMPRESSION'])
         )
 
