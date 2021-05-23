@@ -5,7 +5,7 @@ from Database.postgres import init_postgres
 
 @error_db_handler
 @init_postgres
-@timer
+@timer(True)
 def generate_data(postgres_db, list_count_rows):
     postgres_db.select_data("""
         SELECT
