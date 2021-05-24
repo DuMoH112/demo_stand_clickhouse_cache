@@ -13,12 +13,13 @@ from select_data.utils import (
 @init_clickhouse
 @init_postgres
 @timer(isRetunrnTime=False)
-def select_all_query_clickhouse(clickhouse_db, postgres_db):
+def select_all_query_clickhouse(clickhouse_db, postgres_db, row=None):
     files = select_files(postgres_db)
     if not files:
         return False
 
     functions = [
+        (select_count_all_data, [clickhouse_db]),
         (select_sum_value_in_all_files, [clickhouse_db]),
         (select_min_and_max_dt, [clickhouse_db, random.choice(files)]),
         (select_sum_value_in_one_files, [clickhouse_db, random.choice(files)]),
@@ -58,6 +59,13 @@ def select_files(postgres_db):
         files = [i[0] for i in files]
 
     return files
+
+
+@timer(isRetunrnTime=False)
+def select_count_all_data(clickhouse_db):
+    count = clickhouse_db.select_data("SELECT count(*) FROM raw_data")[0]
+
+    return count
 
 
 @timer(isRetunrnTime=True)

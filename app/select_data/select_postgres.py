@@ -11,12 +11,13 @@ from select_data.utils import (
 @error_db_handler
 @init_postgres
 @timer(isRetunrnTime=False)
-def select_all_query_postgres(postgres_db):
+def select_all_query_postgres(postgres_db, row=None):
     files = select_files(postgres_db)
     if not files:
         return False
 
     functions = [
+        (select_count_all_data, [postgres_db]),
         (select_sum_value_in_all_files, [postgres_db]),
         (select_min_and_max_dt, [postgres_db, random.choice(files)]),
         (select_sum_value_in_one_files, [postgres_db, random.choice(files)]),
@@ -56,6 +57,13 @@ def select_files(postgres_db):
         files = [i[0] for i in files]
 
     return files
+
+
+@timer(isRetunrnTime=False)
+def select_count_all_data(postgres_db):
+    count = postgres_db.select_data("SELECT count(*) FROM raw_data")[0]
+
+    return count
 
 
 @timer(isRetunrnTime=True)

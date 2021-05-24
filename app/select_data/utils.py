@@ -1,6 +1,41 @@
 import os
 import time
 
+from logging_excel import LoggingResultDBToExcel
+from Database.postgres import Postgres_db
+from Database.clickhouse import Clickhouse_db
+
+doc_rows = []
+
+
+def select_table(obj, wb):
+    if type(obj) == Postgres_db:
+        return wb.postgres_table
+    elif type(obj) == Clickhouse_db:
+        return wb.clickhouse_table
+
+
+def writer_excel(name_func, diff_time, args_, result):
+    path = 'temp/Analyze_test.xlsx'
+
+    with LoggingResultDBToExcel(path) as wb:
+        if args_:
+            table = select_table(args_[0], wb)
+
+            row = doc_rows[-1]
+            if name_func == 'select_count_all_data':
+                table.cell(column=1, row=row, value=result[0])
+            elif name_func == "select_sum_value_in_all_files":
+                table.cell(column=2, row=row, value=diff_time)
+            elif name_func == "select_min_and_max_dt":
+                table.cell(column=3, row=row, value=diff_time)
+            elif name_func == "select_sum_value_in_one_files":
+                table.cell(column=4, row=row, value=diff_time)
+            elif name_func == "select_without_filters":
+                table.cell(column=5, row=row, value=diff_time)
+            elif name_func == "select_with_filters":
+                table.cell(column=5 + args_[-1], row=row, value=diff_time)
+
 
 def log_timer(name_func, diff_time, args_):
     arguments = ", ".join(f'{i}' for i in args_)
@@ -37,11 +72,18 @@ def timer(isRetunrnTime=True):
     """
     def decorator_timer(func):
         def the_wrapper_around_the_original_function(*args, **kwargs):
+            if func.__name__ in [
+                'select_all_query_postgres',
+                'select_all_query_clickhouse'
+            ]:
+                doc_rows.append(kwargs['row'])
+
             start_time = time.time()
             result = func(*args, **kwargs)
             stop_time = time.time()
 
             log_timer(func.__name__, stop_time - start_time, args)
+            writer_excel(func.__name__, stop_time - start_time, args, result)
 
             if isRetunrnTime:
                 return {
