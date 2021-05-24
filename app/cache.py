@@ -168,10 +168,6 @@ def update_cache_table_clickhouse(postgres_db, clickhouse_db, table_name, file_i
 
     check = None
     if file_id is None:
-        drop_time_start = time()
-        check = drop_old_table_clickhouse(clickhouse_db, table_name)
-        print(f"DROP table {table}_old is {check}. Time: {time() - drop_time_start}")
-
         rename_time_start = time()
         check = rename_table_clickhouse(clickhouse_db, table_name)
         print(f"Rename table {table} is {check}. Time: {time() - rename_time_start}")
