@@ -2,7 +2,7 @@ import os
 import time
 
 from logging_excel import LoggingResultDBToExcel
-from Database.postgres import Postgres_db
+from Database.postgres import Postgres_db, config
 from Database.clickhouse import Clickhouse_db
 
 doc_rows = []
@@ -16,7 +16,7 @@ def select_table(obj, wb):
 
 
 def writer_excel(name_func, diff_time, args_, result):
-    path = 'temp/Analyze_test.xlsx'
+    path = config['APP']['PATH_TO_EXCEL_FILE']
 
     with LoggingResultDBToExcel(path) as wb:
         if args_:
@@ -53,7 +53,7 @@ time: {time}
     )
 
     mode = 'a'
-    filename = 'timer.log'
+    filename = config['APP']['PATH_TO_LOG_FILE']
 
     if not os.path.isfile(filename):
         mode = 'w+'
