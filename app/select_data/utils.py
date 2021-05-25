@@ -1,11 +1,22 @@
 import os
 import time
+import random
 
 from logging_excel import LoggingResultDBToExcel
 from Database.postgres import Postgres_db, config
 from Database.clickhouse import Clickhouse_db
 
 doc_rows = []
+
+
+
+def get_random_files(files):
+    rnd_count = random.randint(1, len(files))
+    rnd_files = []
+    for i in range(rnd_count):
+        rnd_files.append(random.choice(files))
+
+    return list(dict.fromkeys(rnd_files)) 
 
 
 def select_table(obj, wb):

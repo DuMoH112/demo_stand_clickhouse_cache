@@ -5,11 +5,12 @@ from Database.postgres import init_postgres
 from Database.clickhouse import init_clickhouse
 from select_data.utils import (
     timer,
-    random_date
+    random_date,
+    get_random_files
 )
 
 
-@error_db_handler
+# @error_db_handler
 @init_clickhouse
 @init_postgres
 @timer(isRetunrnTime=False)
@@ -21,19 +22,19 @@ def select_all_query_clickhouse(clickhouse_db, postgres_db, row=None):
     functions = [
         (select_count_all_data, [clickhouse_db]),
         (select_sum_value_in_all_files, [clickhouse_db]),
-        (select_min_and_max_dt, [clickhouse_db, random.choice(files)]),
-        (select_sum_value_in_one_files, [clickhouse_db, random.choice(files)]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 0]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 1]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 2]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 3]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 4]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 5]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 6]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 7]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 8]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 9]),
-        (select_with_filters, [clickhouse_db, random.choice(files), 10])
+        (select_min_and_max_dt, [clickhouse_db, get_random_files(files)]),
+        (select_sum_value_in_one_files, [clickhouse_db, get_random_files(files)]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 0]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 1]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 2]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 3]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 4]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 5]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 6]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 7]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 8]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 9]),
+        (select_with_filters, [clickhouse_db, get_random_files(files), 10])
     ]
 
     result = []
@@ -69,13 +70,14 @@ def select_count_all_data(clickhouse_db):
 
 
 @timer(isRetunrnTime=True)
-def select_min_and_max_dt(clickhouse_db, file_id):
+def select_min_and_max_dt(clickhouse_db, files_id):
+    list_files = ",".join([str(i) for i in files_id])
     response = clickhouse_db.select_data(f"""
         SELECT 
             min(dt),
             max(dt)
         FROM raw_data 
-        WHERE file_id={file_id}
+        WHERE file_id in ({list_files})
     """)
 
     return response
@@ -94,19 +96,20 @@ def select_sum_value_in_all_files(clickhouse_db):
 
 
 @timer(isRetunrnTime=True)
-def select_sum_value_in_one_files(clickhouse_db, file_id):
+def select_sum_value_in_one_files(clickhouse_db, files_id):
+    list_files = ",".join([str(i) for i in files_id])
     response = clickhouse_db.select_data(f"""
         SELECT 
             sum(value)
         FROM raw_data
-        WHERE file_id={file_id}
+        WHERE file_id in ({list_files})
     """)
 
     return response
 
 
 @timer(isRetunrnTime=True)
-def select_with_filters(clickhouse_db, file_id, count_filters):
+def select_with_filters(clickhouse_db, files_id, count_filters):
     other_filters = []
     if count_filters:
         for numb_filter in range(1, count_filters + 1):
@@ -117,12 +120,13 @@ def select_with_filters(clickhouse_db, file_id, count_filters):
     else:
         other_filters = ""
 
+    list_files = ",".join([str(i) for i in files_id])
     response = clickhouse_db.select_data(f"""
         SELECT
             sum(value)
         FROM raw_data
         WHERE
-            file_id={file_id} and
+            file_id in ({list_files}) and
             dt='{random_date('2019-01-01', '2020-01-01', random.random())}'
             {other_filters}
         """)
