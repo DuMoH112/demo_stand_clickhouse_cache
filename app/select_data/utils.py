@@ -12,11 +12,11 @@ doc_rows = []
 
 def get_random_files(files):
     rnd_count = random.randint(1, len(files))
-    rnd_files = []
-    for i in range(rnd_count):
-        rnd_files.append(random.choice(files))
+    rnd_files = set()
+    while rnd_count - len(rnd_files) > 0:
+        rnd_files.add(random.choice(files))
 
-    return list(dict.fromkeys(rnd_files)) 
+    return list(rnd_files) 
 
 
 def select_table(obj, wb):
