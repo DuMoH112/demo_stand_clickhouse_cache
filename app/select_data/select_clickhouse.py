@@ -15,6 +15,7 @@ from select_data.utils import (
 @init_postgres
 @timer(isRetunrnTime=False)
 def select_all_query_clickhouse(clickhouse_db, postgres_db, row=None):
+    print(f"[INFO] SELECTION CLICKHOUSE")
     files = select_files(postgres_db)
     if not files:
         return False
@@ -38,12 +39,27 @@ def select_all_query_clickhouse(clickhouse_db, postgres_db, row=None):
     ]
 
     result = []
-
-    for function, arguments in functions:
-        response = function(*arguments)
+    repeat = 3
+    all_cnt_query = repeat * (len(functions) - 1)
+    for index, el in enumerate(functions):
+        function, arguments = el
+        # Прохождение по одному запросу несколько раз для получения среднего времени
+        all_time = 0
+        response = None
+        # Пропускаем выбрку нексольких раз для первого запроса, так как он носит информативный характер
+        if index > 0:
+            for i in range(repeat):
+                response = function(*arguments)
+                iter_num = (i + 1) + ((index - 1) * repeat)
+                if type(response) == dict:
+                    all_time += response.get('total_time')
+                    print(f"[+] Select {iter_num}/{all_cnt_query}. Time: {response.get('total_time')}")
+        else:
+            response = function(*arguments)
+                
         if type(response) == dict:
             result.append({
-                "total_time": response.get('total_time'),
+                "total_time": all_time / 3,
                 "result": response.get('result')
             })
         else:
