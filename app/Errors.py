@@ -15,10 +15,10 @@ def error_db_handler(func):
         try:
             return func(*args, **kwargs)
         except ConnectError:
-            print("Нет подключения к БД")
+            print("[ERROR] Нет подключения к БД")
             return False
         except ExecuteError:
-            print("Ошибка обращения к БД")
+            print("[ERROR] Ошибка обращения к БД")
             return False
         except Exception as e:
             print("""

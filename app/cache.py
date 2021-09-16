@@ -74,7 +74,7 @@ def read_csv_to_clickhouse(clickhouse_db, query, filename):
     with open(f"{config['APP']['PATH_TEMP_FILES']}/{filename}", 'r') as f:
         data_reader = reader(f, delimiter=',')
         transaction = query
-        print("start reader")
+        print("[INFO] Start reader")
         count = 0
         insert_count = 0
         stack = 100000
@@ -90,12 +90,12 @@ def read_csv_to_clickhouse(clickhouse_db, query, filename):
                 transaction = query
                 insert_count += count
                 count = 0
-                print(f"Insert {insert_count} lines to clickhouse time: {time() - local_time_start}")
+                print(f"[+] Insert {insert_count} lines to clickhouse time: {time() - local_time_start}")
         else:
             insert_count += count
             local_time_start = time()
             clickhouse_db.insert_data(query=transaction)
-            print(f"Insert {insert_count} lines to clickhouse time: {time() - local_time_start}")
+            print(f"[+] Insert {insert_count} lines to clickhouse time: {time() - local_time_start}")
 
     return True
 
@@ -106,9 +106,9 @@ def read_csv_to_clickhouse(clickhouse_db, query, filename):
 def update_cache_table_clickhouse(postgres_db, clickhouse_db, table_name, file_id=None):
     print('--------------------------------------------------')
     if file_id:
-        print(f"Start add new lines to cache_{table_name}_clickhouse")
+        print(f"[INFO] Start add new lines to cache_{table_name}_clickhouse")
     else:
-        print(f"Start update cache_{table_name}_clickhouse")
+        print(f"[INFO] Start update cache_{table_name}_clickhouse")
     fields = {
         "raw_data": [
             'dt',
@@ -146,7 +146,7 @@ def update_cache_table_clickhouse(postgres_db, clickhouse_db, table_name, file_i
                 f.write("{}\n".format(
                     ",".join(str(i if i is not None else '\\N') for i in row)))
 
-    print(f"Copy from posgres to csv time: {time() - copy_to_time_start}")
+    print(f"[INFO] Copy from posgres to csv time: {time() - copy_to_time_start}")
 
     query = "INSERT INTO {table}({keys}) VALUES \n".format(
         db_name=clickhouse_db.db_name,
@@ -156,26 +156,26 @@ def update_cache_table_clickhouse(postgres_db, clickhouse_db, table_name, file_i
     if file_id is None:
         create_table_time_start = time()
         create_new_table_clickhouse(clickhouse_db, table_name)
-        print(f"Create table '{table}'' in clickhouse time: {time() - create_table_time_start}")
+        print(f"[INFO] Create table '{table}'' in clickhouse time: {time() - create_table_time_start}")
 
     insert_time_start = time()
     read_csv_to_clickhouse(clickhouse_db, query, filename=table_name)
-    print(f"Insert ALL to clickhouse time: {time() - insert_time_start}")
+    print(f"[INFO] Insert ALL to clickhouse time: {time() - insert_time_start}")
 
     del_file_time_start = time()
     os.remove(f"{config['APP']['PATH_TEMP_FILES']}/{table_name}")
-    print(f"Del file {table_name} time: {time() - del_file_time_start}")
+    print(f"[INFO] Del file {table_name} time: {time() - del_file_time_start}")
 
     check = None
     if file_id is None:
         rename_time_start = time()
         check = rename_table_clickhouse(clickhouse_db, table_name)
-        print(f"Rename table {table} is {check}. Time: {time() - rename_time_start}")
+        print(f"[INFO] Rename table {table} is {check}. Time: {time() - rename_time_start}")
 
         if check:
             drop_time_start = time()
             check = drop_old_table_clickhouse(clickhouse_db, table_name)
-            print(f"DROP table {table}_old is {check}. Time: {time() - drop_time_start}")
+            print(f"[INFO] DROP table {table}_old is {check}. Time: {time() - drop_time_start}")
 
     print('--------------------------------------------------')
     return True
