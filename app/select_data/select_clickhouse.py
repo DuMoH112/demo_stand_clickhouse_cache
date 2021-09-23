@@ -54,12 +54,13 @@ def select_all_query_clickhouse(clickhouse_db, postgres_db, row=None):
                 if type(response) == dict:
                     all_time += response.get('total_time')
                     print(f"[+] Select {iter_num}/{all_cnt_query}. Time: {response.get('total_time')}")
+            print(f"Avg time: {all_time / repeat}")
         else:
             response = function(*arguments)
                 
         if type(response) == dict:
             result.append({
-                "total_time": all_time / 3,
+                "total_time": all_time / repeat,
                 "result": response.get('result')
             })
         else:

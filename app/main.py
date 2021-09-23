@@ -9,8 +9,8 @@ from generate_data_postgres import generate_data
 from select_data.select_postgres import select_all_query_postgres
 from select_data.select_clickhouse import select_all_query_clickhouse
 from script_generation_data import (
-    data_generation_scripts_1,
-    data_generation_scripts_2,
+    data_generation_scripts_big_different,
+    data_generation_scripts_low_different,
     data_generation_scripts_test
 )
 
@@ -24,8 +24,9 @@ def main():
     os.makedirs(config['APP']['PATH_TEMP_FILES'], exist_ok=True)
     tempfile.tempdir = config['APP']['PATH_TEMP_FILES']
     
-    for indx, script in enumerate(data_generation_scripts_test):
-        print(f'[INFO] Start {indx + 1} script')
+    scripts = data_generation_scripts_low_different
+    for indx, script in enumerate(scripts):
+        print(f'[INFO] Start {indx + 1}/{len(scripts)} script')
         generate_data(list_count_rows=script)
         update_cache_table_clickhouse(table_name='raw_data')
         select_all_query_postgres(row=indx + 2)
