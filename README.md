@@ -1,1 +1,7 @@
-# demo_stand_clickhouse_cache
+# Исходники для статьи
+
+Чтобы развернуть данный стенд у себя на машине нужно:
+
+1. Запустить контейнеры postgredb и clickhousedb-server в Docker
+2. Провести нужные миграции в Postgre. (миграции расположены по пути ./db_scripts/create_db.sql)
+3. Запустить контейнер app
